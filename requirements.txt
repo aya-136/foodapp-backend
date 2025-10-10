@@ -3,3 +3,4 @@ djangorestframework
 stripe
 firebase-admin
 python-dotenv
+gunicorn
