@@ -2,6 +2,7 @@ services:
   - type: web
     name: foodapp-backend
     env: python
+    rootDir: payment
     region: oregon   # or closest to your users
     plan: free       # or starter, standard, etc.
     branch: main
