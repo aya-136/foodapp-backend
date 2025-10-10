@@ -2,10 +2,6 @@ services:
   - type: web
     name: foodapp-backend
     env: python
-    rootDir: payment
-    region: oregon   # or closest to your users
-    plan: free       # or starter, standard, etc.
-    branch: main
     buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
     startCommand: "gunicorn payment.wsgi:application --preload --workers=4 --threads=2 --bind 0.0.0.0:$PORT"
     envVars:
@@ -14,21 +10,10 @@ services:
       - key: DEBUG
         value: "False"
       - key: ALLOWED_HOSTS
-        value: "foodapp-backend.onrender.com"
+        value: "foodapp-backend-vcay.onrender.com"
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_PUBLISHABLE_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
-      - key: DATABASE_URL
-        fromDatabase:
-          name: foodapp-db
-          property: connectionString
-      - key: FIREBASE_SERVICE_ACCOUNT
-        sync: false
-
-databases:
-  - name: foodapp-db
-    plan: free
-    region: oregon
