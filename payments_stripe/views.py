@@ -63,26 +63,32 @@ def create_payment_intent(request):
 @api_view(['POST'])
 def payment_method_details(request):
     client_secret = request.data.get("client_secret")
+    user_id = request.data.get("user_id")
     if not client_secret:
         return Response({"error": "client_secret required"}, status=400)
+    if not user_id:
+        return Response({"error": "user_id required"}, status=400)
 
     try:
         payment_intent_id = client_secret.split("_secret_")[0]
-
         payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
         payment_method_id = payment_intent.payment_method
-
         payment_method = stripe.PaymentMethod.retrieve(payment_method_id)
 
         card = payment_method.card
         billing_details = payment_method.billing_details
+
+        db.collection("cards").document(user_id).collection("userCards").add({
+            "cardNumber": card.last4,
+            "expiry": f"{card.exp_month}/{card.exp_year}",
+            "holderName": billing_details.get("name", "")
+        })
 
         return Response({
             "last4": card.last4,
             "expiry": f"{card.exp_month}/{card.exp_year}",
             "holder_name": billing_details.get("name", ""),
         })
-    except stripe.error.StripeError as e:
-        return Response({"error": str(e)}, status=400)
     except Exception as e:
-        return Response({"error": f"Unexpected error: {str(e)}"}, status=400)
+        return Response({"error": str(e)}, status=400)
+
