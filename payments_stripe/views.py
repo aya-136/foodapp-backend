@@ -6,7 +6,6 @@ from firebase_config import db
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
-
 @api_view(['POST'])
 def process_payment(request):
     order_id = request.data.get('order_id')
@@ -25,33 +24,24 @@ def process_payment(request):
 
     try:
         intent = stripe.PaymentIntent.create(
-            amount=amount,
-            currency='usd',
-            payment_method=payment_method_id,
-            confirm=True,
-            automatic_payment_methods={
-                "enabled": True,
-                "allow_redirects": "never"
-            },
-            metadata={'order_id': order_id}
-        )
+        amount=amount,
+        currency='usd',
+        payment_method=payment_method_id,
+        confirm=True,
+        automatic_payment_methods={
+            "enabled": True,
+            "allow_redirects": "never"
+        },
+        metadata={'order_id': order_id}
 
+        )
         if intent.status == 'succeeded':
             order_ref.update({"paymentStatus": "completed"})
-            return Response({
-                "success": True,
-                "payment_id": intent.id,
-                "message": "Payment successful"
-            })
+            return Response({"success": True, "payment_id": intent.id, "message": "Payment successful"})
         else:
-            return Response({
-                "success": False,
-                "payment_id": intent.id,
-                "message": f"Payment status: {intent.status}"
-            }, status=400)
+            return Response({"success": False, "payment_id": intent.id, "message": f"Payment status: {intent.status}"}, status=400)
     except stripe.error.StripeError as e:
         return Response({"success": False, "message": str(e)}, status=400)
-
 
 @api_view(['POST'])
 def create_payment_intent(request):
