@@ -17,8 +17,11 @@ Including another URLconf
 # myproject/urls.py
 from django.contrib import admin
 from django.urls import path, include
+from chat.views import chat_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/payments/', include('payments_stripe.urls')),
+    path('chat/', chat_view, name='chat'),
+
 ]
